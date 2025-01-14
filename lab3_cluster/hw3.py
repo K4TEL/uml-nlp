@@ -56,14 +56,31 @@ for n in n_clusters:
     print(f"t-SNE -> K-means (n_clusters={n}): Silhouette Coefficient = {silhouette_kmeans:.3f}")
     print(f"t-SNE -> Gaussian Mixture (n_clusters={n}): Silhouette Coefficient = {silhouette_gmm:.3f}")
 
-    for linkage in linkage_methods:
+    if n > 5:
+        fig, axes = plt.subplots(1, 3, figsize=(24, 8), dpi=300)
+
+    for i, linkage in enumerate(linkage_methods):
         agglo = AgglomerativeClustering(n_clusters=n, linkage=linkage)
         agglo_labels = agglo.fit_predict(word_vectors)
         silhouette_agglo = silhouette_score(word_vectors, agglo_labels)
         print(f"t-SNE -> Agglomerative (n_clusters={n}, linkage={linkage}): Silhouette Coefficient = {silhouette_agglo:.3f}")
 
+        if n > 5:
+            sns.scatterplot(ax=axes[i], x=tsne_results[:, 0], y=tsne_results[:, 1], hue=agglo_labels + 1, palette='Set2',
+                            s=10)
+            axes[2].set_title(f"T-SNE with Agglomerative Clustering Clusters {linkage} linkage")
+            axes[2].set_xlabel("TSNE Component 1")
+            axes[2].set_ylabel("TSNE Component 2")
+            axes[2].legend(title="Clusters", loc='best', fontsize='small')
+
+plt.tight_layout()
+plt.savefig("tsne_agglo_cluster_visualization.png")
+plt.show()
+
+# plt.close()
+
 # Create a figure with three subplots
-fig, axes = plt.subplots(1, 3, figsize=(24, 8), dpi=300)
+fig, axes = plt.subplots(1, 2, figsize=(24, 12), dpi=300)
 
 # Plot K-Means Clusters
 sns.scatterplot(ax=axes[0], x=tsne_results[:, 0], y=tsne_results[:, 1], hue=kmeans_labels+1, palette='Set2', s=10)
@@ -80,16 +97,16 @@ axes[1].set_ylabel("TSNE Component 2")
 axes[1].legend(title="Clusters", loc='best', fontsize='small')
 
 # Plot Agglomerative Clustering Clusters
-sns.scatterplot(ax=axes[2], x=tsne_results[:, 0], y=tsne_results[:, 1], hue=agglo_labels+1, palette='Set2', s=10)
-axes[2].set_title("T-SNE with Agglomerative Clustering Clusters Complete linkage")
-axes[2].set_xlabel("TSNE Component 1")
-axes[2].set_ylabel("TSNE Component 2")
-axes[2].legend(title="Clusters", loc='best', fontsize='small')
+# sns.scatterplot(ax=axes[2], x=tsne_results[:, 0], y=tsne_results[:, 1], hue=agglo_labels+1, palette='Set2', s=10)
+# axes[2].set_title("T-SNE with Agglomerative Clustering Clusters Complete linkage")
+# axes[2].set_xlabel("TSNE Component 1")
+# axes[2].set_ylabel("TSNE Component 2")
+# axes[2].legend(title="Clusters", loc='best', fontsize='small')
 
 # Adjust layout and save the figure
-# plt.tight_layout()
-# plt.savefig("tsne_cluster_visualization.png")
-# plt.show()
+plt.tight_layout()
+plt.savefig("tsne_cluster_visualization.png")
+plt.show()
 
 
 # Task 3: PCA Transformation and Visualization
